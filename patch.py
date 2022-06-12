@@ -1,11 +1,12 @@
 from pwn import *
-import lief
+
 
 class Patcher:
     def __init__(self,dir):
         fd = open(dir,'rb')
         self.bin = fd.read()
         self.bin = bytearray(self.bin)
+        self.elf = ELF(dir)
         fd.close()
         if(self.bin[4] == 2):
             context.arch = "amd64"
@@ -26,7 +27,7 @@ class Patcher:
         if(self.arch == 64):
             self.bin[eh_frame_entry+4] = 7
             self.inject_addr = u64(self.bin[eh_frame_entry+8:eh_frame_entry+16])
-    
+        print(ej)
     def jmpoffset(self,start,end):
         offset = end - (start + 5)
         if(offset < 0):

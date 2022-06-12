@@ -1,6 +1,6 @@
-from unittest.mock import patch
-from patch import *
-context.arch = "amd64"
+
+from patch1 import *
+
 shellcode = ''' 
 	mov r15,6 
 	push r15 
@@ -48,7 +48,6 @@ shellcode = '''
 '''
 patcher = Patcher('target')
 # patcher.setinjectaddr(0xDDFE)
-patcher.get_enframe()
-patcher.hook(0x1149,5,asm(shellcode))
+patcher.hook(0x11CD,0x11d5-0x11CD,asm(shellcode))
 patcher.save("./target.patch")
 
