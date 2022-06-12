@@ -3,8 +3,6 @@ int main(){
     char *p = malloc(20);
     read(0,p,10);
     printf(p);
-    free(p);
-    free(p);
-    system("echo a");
+    printf("%s",p);
     return 0;
 }

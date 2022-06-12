@@ -1,3 +1,4 @@
+from turtle import back
 from pwn import *
 import keystone
 import ctypes
@@ -114,30 +115,48 @@ class Patcher:
         offset = end - (start + 5)
         if(offset < 0):
             offset += (1<<32)
-        print(hex(offset))
         return b'\xe9' + p32(offset)
-
+    def offset(self,start,end):
+        return end - (start + 5)
     def setinjectaddr(self,addr):
         self.inject_addr = addr
     
 
-    def hook(self,hook_addr,hook_len,content):
+    def hook(self,hook_addr,hook_len,content,backup_place="font"):
         assert(hook_len >= 5)
         # backup = self.bin[hook_addr:hook_addr+hook_len]
         backup = self.binary.read(hook_addr,hook_len)
         target = self.inject_addr
         self.binary.write(hook_addr,self.jmpoffset(hook_addr,target))
-        payload = backup + content
+        payload = b""
+        if backup_place == "font":
+            payload = backup + content
+        elif backup_place == "end":
+            payload = content + backup
+        elif backup_place == "nobackup":
+            payload = content
+        else:
+            raise(backup_place)
         self.binary.write(target,payload)
         self.inject_addr += len(payload)
         target = self.inject_addr
         self.binary.write(target,self.jmpoffset(target,hook_addr+hook_len))
         self.inject_addr += 5
-    
+
     def edit(self,addr,content):
         self.binary.write(addr,content)
     
     def save(self,path):
         self.binary.save(path)
     
-    def 
+    def fmt_patch(self,parmcode_addr,len):
+        if self.bits == 64:
+            fmt_addr = self.inject_addr
+            self.edit(self.inject_addr,b"%s\x00")
+            self.inject_addr += 3
+            
+            shellcode = """
+            lea rdi, [rip-0xa]
+            mov rsi, qword ptr [rbp-0x8]
+            """
+            self.hook(hook_addr=parmcode_addr,hook_len=len,content=asm(shellcode),backup_place="nobackup")

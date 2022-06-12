@@ -48,6 +48,7 @@ shellcode = '''
 '''
 patcher = Patcher('target')
 # patcher.setinjectaddr(0xDDFE)
-patcher.hook(0x11CD,0x11d5-0x11CD,asm(shellcode))
+patcher.fmt_patch(0x11BE,0x11CA-0x11BE)
+# patcher.hook(0x11CD,0x11d5-0x11CD,asm(shellcode))
 patcher.save("./target.patch")
 
